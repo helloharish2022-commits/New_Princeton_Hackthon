@@ -1,0 +1,118 @@
+import pygame
+import random
+pygame.init()
+import sys
+
+game_running = True
+plane_health = 0
+
+font = pygame.font.Font(None, 50)
+
+keys = pygame.key.get_pressed()
+
+screen = pygame.display.set_mode((1000,700))
+clock = pygame.time.Clock()
+pygame.display.set_caption("Airplane")
+
+background_surface = pygame.Surface((1000,700))
+background_surface.fill((135,206,250))
+
+cloud_surface = pygame.image.load("cloud_clipart.png").convert_alpha()
+
+cloud_rect_1 = cloud_surface.get_rect()
+cloud_rect_1.x = -250
+cloud_rect_1.y = -200
+
+cloud_rect_2 = cloud_surface.get_rect()
+cloud_rect_2.x = 850
+cloud_rect_2.y = 200
+
+satel_surface = pygame.image.load("Satelite.png").convert_alpha()
+satel_rect = pygame.Rect(0, 0, 200, 250)
+
+
+satel_rect.x = random.randint(50, 950)
+satel_rect.y = -200
+
+satel_width = satel_surface.get_width() / 2
+satel_length = satel_surface.get_height() / 2
+
+satel_surface = pygame.transform.scale(satel_surface, (satel_width, satel_length))
+
+
+
+
+while game_running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            game_running = False
+
+    if plane_health > 0:
+
+        game_title = font.render(f"Health: {plane_health}",True, (220,20,60))
+        screen.blit(background_surface, (0, 0))
+        screen.blit(game_title, (450, 650))
+        screen.blit(cloud_surface, cloud_rect_1)
+        cloud_rect_1.y +=5
+        if cloud_rect_1.y == 700:
+            cloud_rect_1.y = -200
+
+        #cloud
+        screen.blit(cloud_surface, cloud_rect_2)
+        cloud_rect_2.y +=5
+        if cloud_rect_2.y == 700:
+            cloud_rect_2.y = -200
+
+        #satelite
+        screen.blit(satel_surface, satel_rect)
+        satel_rect.y += 10
+        if satel_rect.y == 700:
+            satel_rect.y = -200
+            satel_rect.x = random.randint(50, 950)
+
+    
+        #getting mouse position
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        airplane_surface = pygame.image.load("spaceship_small.png").convert_alpha()
+        airplane_rect = airplane_surface.get_rect()
+
+        #setting rectangle to mouse position
+        airplane_rect.x = mouse_x - 80
+        airplane_rect.y = mouse_y - 75
+
+
+        screen.blit(airplane_surface, airplane_rect)
+
+        if airplane_rect.colliderect(satel_rect):
+            plane_health -= 1
+            satel_rect.y = -200
+            satel_rect.x = random.randint(50, 950)  
+
+        
+        # to check hitboxes 
+        #pygame.draw.rect(screen, (255, 0, 0), airplane_rect, 2)
+        #pygame.draw.rect(screen, (255, 0, 0), satel_rect, 2)
+
+    elif plane_health == 0:
+        screen.fill((100,206,250))
+
+        game_explanation = font.render("Press 0 to start the game",True, (220,20,60))
+        mouse_explanation = font.render("Use mouse to move the plane",True, (220,20,60))
+        people_explanation = font.render("Made by: Ronith, Harish, Jayden, and Rishith",True, (220,20,60))
+        hack_explanation = font.render("Made for the Princeton Hackathon 2026",True, (220,20,60))
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_0]:
+            plane_health = 3
+
+        screen.blit(game_explanation, (300, 200))
+        screen.blit(mouse_explanation, (280, 250))
+        screen.blit(people_explanation, (150, 400))
+        screen.blit(hack_explanation, (170, 100))
+
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
+sys.exit()
